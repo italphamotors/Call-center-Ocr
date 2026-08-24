@@ -1,7 +1,7 @@
 services:
   alpha-motors-ocr:
     build: .
-    container_name: alpha-motors-ocr
+    container_name: alpha-motors-ocr-v2
     restart: unless-stopped
     ports:
       - "8093:3000"
