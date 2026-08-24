@@ -1,0 +1,33 @@
+services:
+  alpha-motors-ocr:
+    build: .
+    container_name: alpha-motors-ocr
+    restart: unless-stopped
+    ports:
+      - "8093:3000"
+    environment:
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - MISTRAL_CHAT_MODEL=${MISTRAL_CHAT_MODEL}
+      - GOOGLE_SERVICE_ACCOUNT_EMAIL=${GOOGLE_SERVICE_ACCOUNT_EMAIL}
+      - GOOGLE_PRIVATE_KEY=${GOOGLE_PRIVATE_KEY}
+      - GOOGLE_SHEET_ID=${GOOGLE_SHEET_ID}
+      - GOOGLE_SHEET_TAB_RDV=${GOOGLE_SHEET_TAB_RDV}
+      - GOOGLE_SHEET_TAB_APPEL=${GOOGLE_SHEET_TAB_APPEL}
+      - ODOO_JSONRPC_URL=${ODOO_JSONRPC_URL}
+      - ODOO_DB=${ODOO_DB}
+      - ODOO_USER=${ODOO_USER}
+      - ODOO_PASSWORD=${ODOO_PASSWORD}
+      - ODOO_MODEL_RDV=${ODOO_MODEL_RDV}
+      - ODOO_MODEL_APPEL=${ODOO_MODEL_APPEL}
+      - ODOO_MODEL_APPEL_LIGNE=${ODOO_MODEL_APPEL_LIGNE}
+      - ODOO_TAG_FIELD_RDV=${ODOO_TAG_FIELD_RDV}
+      - ODOO_TAG_FIELD_APPEL=${ODOO_TAG_FIELD_APPEL}
+      - ODOO_STATUS_FIELD_RDV=${ODOO_STATUS_FIELD_RDV}
+      - ODOO_STATUS_FIELD_APPEL=${ODOO_STATUS_FIELD_APPEL}
+      - PORT=3000
+    networks:
+      - odoo_odoo_network
+
+networks:
+  odoo_odoo_network:
+    external: true
