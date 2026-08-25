@@ -85,8 +85,6 @@ module.exports = {
       tagValue: 'scan',
       // statusField : champ Selection à créer dans Studio avec au minimum
       // les clés techniques : nouveau / a_rappeler / contacte / traite
-      statusField: process.env.ODOO_STATUS_FIELD_RDV || 'x_studio_status',
-      statusDefault: 'nouveau',
       // colonnes affichées / éditables côté interface
       columns: [
         { key: 'telephone',   label: 'Téléphone',    placeholder: '6xx xxx xxx' },
