@@ -128,7 +128,7 @@ module.exports = {
       },
       lineFields: {
         NAME:          'x_name',
-        FICHE_ID:      'x_studio_fiche',
+        FICHE_ID:      'x_studio_fiche_1',
         TELEPHONE:     'x_studio_tlphone',
         CODE_RESULTAT: 'x_studio_code_rsultat',
         DATE_APPEL:    'x_studio_date_de_lappel',
