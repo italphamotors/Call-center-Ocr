@@ -83,8 +83,7 @@ module.exports = {
       //   le code détecte le type automatiquement via fields_get.
       tagField: process.env.ODOO_TAG_FIELD_RDV || 'x_studio_etiquette',
       tagValue: 'scan',
-      // statusField : champ Selection à créer dans Studio avec au minimum
-      // les clés techniques : nouveau / a_rappeler / contacte / traite
+      // Statut désactivé pour l'instant (aucun champ Studio requis pour ça).
       // colonnes affichées / éditables côté interface
       columns: [
         { key: 'telephone',   label: 'Téléphone',    placeholder: '6xx xxx xxx' },
@@ -136,8 +135,7 @@ module.exports = {
       },
       tagField: process.env.ODOO_TAG_FIELD_APPEL || 'x_studio_etiquette',
       tagValue: 'scan',
-      statusField: process.env.ODOO_STATUS_FIELD_APPEL || 'x_studio_status',
-      statusDefault: 'nouveau',
+      // Statut désactivé pour l'instant (aucun champ Studio requis pour ça).
       columns: [
         { key: 'telephone',     label: 'Téléphone',     placeholder: '6xx xxx xxx' },
         { key: 'code_resultat', label: 'Code résultat', placeholder: 'PEL / NRP / PI / RDV…' },
