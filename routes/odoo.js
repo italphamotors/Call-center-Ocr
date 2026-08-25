@@ -212,7 +212,7 @@ async function saveHistorized(uid, docTypeConfig, date_fiche, agent, validRows, 
     }
   }
 
-  return { success: true, created, skipped: 0, skippedRows: [], errors };
+  return { success: true, created, skipped: 0, skippedRows: [], errors, historized: true, ficheLabel: headerValues[HF.NAME] };
 }
 
 // -------------------------------------------------------
@@ -361,6 +361,128 @@ router.post('/save', async (req, res) => {
 
   } catch (err) {
     return res.json({ success: false, message: 'Impossible de contacter Odoo (vérifie identifiants/réseau) : ' + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// GET /api/odoo/history?docType=fiche_appel&dateFrom=&dateTo=&agent=&limit=&offset=
+// Liste les fiches historisées (en-têtes uniquement), avec filtres.
+// -------------------------------------------------------
+router.get('/history', async (req, res) => {
+  const { docType, dateFrom, dateTo, agent, limit, offset } = req.query;
+  const docTypeConfig = config.DOCUMENT_TYPES[docType];
+
+  if (!docTypeConfig || !docTypeConfig.historized) {
+    return res.json({ success: false, message: "Historique non disponible pour ce type de document." });
+  }
+
+  const HF = docTypeConfig.headerFields;
+
+  try {
+    const uid = await login();
+
+    const domain = [];
+    if (dateFrom) domain.push([HF.DATE_FICHE, '>=', dateFrom]);
+    if (dateTo)   domain.push([HF.DATE_FICHE, '<=', dateTo]);
+    if (agent && agent.trim()) domain.push([HF.AGENT, 'ilike', agent.trim()]);
+
+    const lim = Math.min(parseInt(limit, 10) || 20, 100);
+    const off = parseInt(offset, 10) || 0;
+
+    const [records, total] = await Promise.all([
+      execute(uid, docTypeConfig.odooModel, 'search_read', [domain], {
+        fields: [HF.NAME, HF.DATE_SCAN, HF.DATE_FICHE, HF.AGENT, HF.NB_APPELS],
+        order: `${HF.DATE_SCAN} desc`,
+        limit: lim,
+        offset: off,
+      }),
+      execute(uid, docTypeConfig.odooModel, 'search_count', [domain]),
+    ]);
+
+    res.json({
+      success: true,
+      total,
+      limit: lim,
+      offset: off,
+      records: records.map(r => ({
+        id: r.id,
+        name: r[HF.NAME],
+        date_scan: r[HF.DATE_SCAN],
+        date_fiche: r[HF.DATE_FICHE],
+        agent: r[HF.AGENT],
+        nb_appels: r[HF.NB_APPELS],
+      })),
+    });
+  } catch (err) {
+    res.json({ success: false, message: "Impossible de contacter Odoo : " + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// GET /api/odoo/history/:id?docType=fiche_appel
+// Détail d'une fiche : en-tête + lignes + pièces jointes.
+// -------------------------------------------------------
+router.get('/history/:id', async (req, res) => {
+  const { docType } = req.query;
+  const id = parseInt(req.params.id, 10);
+  const docTypeConfig = config.DOCUMENT_TYPES[docType];
+
+  if (!docTypeConfig || !docTypeConfig.historized) {
+    return res.json({ success: false, message: "Historique non disponible pour ce type de document." });
+  }
+  if (!id) {
+    return res.json({ success: false, message: "Identifiant de fiche invalide." });
+  }
+
+  const HF = docTypeConfig.headerFields;
+  const LF = docTypeConfig.lineFields;
+
+  try {
+    const uid = await login();
+
+    const headers = await execute(uid, docTypeConfig.odooModel, 'read', [[id]], {
+      fields: [HF.NAME, HF.DATE_SCAN, HF.DATE_FICHE, HF.AGENT, HF.NB_APPELS],
+    });
+    if (!headers || !headers.length) {
+      return res.json({ success: false, message: "Fiche introuvable (elle a peut-être été supprimée dans Odoo)." });
+    }
+    const header = headers[0];
+
+    const [lines, attachments] = await Promise.all([
+      execute(uid, docTypeConfig.odooLineModel, 'search_read',
+        [[[LF.FICHE_ID, '=', id]]],
+        { fields: [LF.TELEPHONE, LF.CODE_RESULTAT, LF.DATE_APPEL], order: 'id asc' }),
+      execute(uid, 'ir.attachment', 'search_read',
+        [[['res_model', '=', docTypeConfig.odooModel], ['res_id', '=', id]]],
+        { fields: ['id', 'name', 'mimetype'] }),
+    ]);
+
+    const baseUrl = config.ODOO_JSONRPC_URL.replace(/\/jsonrpc\/?$/, '');
+
+    res.json({
+      success: true,
+      header: {
+        id,
+        name: header[HF.NAME],
+        date_scan: header[HF.DATE_SCAN],
+        date_fiche: header[HF.DATE_FICHE],
+        agent: header[HF.AGENT],
+        nb_appels: header[HF.NB_APPELS],
+      },
+      lines: lines.map(l => ({
+        telephone: l[LF.TELEPHONE],
+        code_resultat: l[LF.CODE_RESULTAT],
+        date_appel: l[LF.DATE_APPEL],
+      })),
+      attachments: attachments.map(a => ({
+        id: a.id,
+        name: a.name,
+        mimetype: a.mimetype,
+        url: `${baseUrl}/web/content/${a.id}?download=true`,
+      })),
+    });
+  } catch (err) {
+    res.json({ success: false, message: "Impossible de contacter Odoo : " + err.message });
   }
 });
 

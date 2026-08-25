@@ -14,9 +14,16 @@
 
   <header>
     <div class="eyebrow">Alpha Motors · Call Center</div>
-    <h1>Scanner une fiche, l'envoyer vers <em>Excel</em></h1>
+    <h1>Scanner une fiche, l'enregistrer dans <em>Odoo</em></h1>
     <p class="lede">Choisissez le type de document, prenez-le en photo ou déposez le scan, vérifiez les lignes détectées, puis enregistrez.</p>
   </header>
+
+  <div class="stepper" id="mainNav">
+    <div class="step-pill active" id="nav-scan">📷 Scanner</div>
+    <div class="step-pill" id="nav-history">🗂️ Historique</div>
+  </div>
+
+  <div id="view-scanner">
 
   <div class="stepper">
     <div class="step-pill active" id="pill-1">1 · Type de document</div>
@@ -112,6 +119,86 @@
     <div id="saveResult" class="alert hidden"></div>
   </div>
 
+  </div> <!-- /view-scanner -->
+
+  <!-- ============ HISTORIQUE ============ -->
+  <div class="card hidden" id="view-history">
+    <h2>Historique des fiches d'appel</h2>
+    <p class="sub">Retrouve les anciens scans, filtre par date ou par agent, ouvre une fiche pour revoir le détail.</p>
+
+    <div class="meta-row">
+      <div class="meta-field">
+        <label>Du</label>
+        <input type="date" id="hist_dateFrom">
+      </div>
+      <div class="meta-field">
+        <label>Au</label>
+        <input type="date" id="hist_dateTo">
+      </div>
+      <div class="meta-field">
+        <label>Agent</label>
+        <input type="text" id="hist_agent" placeholder="Nom de l'agent…">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="primary" id="btnHistSearch">🔍 Rechercher</button>
+      <button id="btnHistReset">Réinitialiser les filtres</button>
+    </div>
+
+    <div id="histLoading" class="hidden" style="margin-top:16px;">
+      <span class="spinner"></span> Chargement de l'historique...
+    </div>
+    <div id="histError" class="alert alert-error hidden"></div>
+    <div id="histEmpty" class="sub hidden" style="margin-top:16px;">Aucune fiche trouvée pour ces critères.</div>
+
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table id="histTable" class="hidden">
+        <thead>
+          <tr>
+            <th>Date du scan</th>
+            <th>Date de la fiche</th>
+            <th>Agent</th>
+            <th>Nb d'appels</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="histTableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="histPager" class="btn-row hidden">
+      <button id="btnHistPrev">← Précédent</button>
+      <span id="histPagerLabel" class="sub"></span>
+      <button id="btnHistNext">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- ============ DÉTAIL D'UNE FICHE (HISTORIQUE) ============ -->
+  <div class="card hidden" id="view-history-detail">
+    <button id="btnHistBack">← Retour à l'historique</button>
+    <h2 id="histDetailTitle">Fiche</h2>
+    <div class="meta-row">
+      <div class="meta-field"><label>Date du scan</label><div id="histDetailScan" class="sub"></div></div>
+      <div class="meta-field"><label>Date de la fiche</label><div id="histDetailFiche" class="sub"></div></div>
+      <div class="meta-field"><label>Agent</label><div id="histDetailAgent" class="sub"></div></div>
+    </div>
+
+    <div id="histDetailAttachments"></div>
+
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table id="histDetailTable">
+        <thead>
+          <tr>
+            <th>Téléphone</th>
+            <th>Code résultat</th>
+            <th>Date de l'appel</th>
+          </tr>
+        </thead>
+        <tbody id="histDetailTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
   <footer>
     <span>Alpha Motors — Palais de sports</span>
     <span>OCR : Mistral · Stockage : Excel</span>
@@ -120,6 +207,7 @@
 
 <script src="assets/js/upload.js"></script>
 <script src="assets/js/table.js"></script>
+<script src="assets/js/history.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

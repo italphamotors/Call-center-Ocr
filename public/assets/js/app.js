@@ -142,7 +142,9 @@ async function saveToOdoo() {
 
     if (data.success) {
       saveResult.classList.add('alert-success');
-      let msg = `✅ ${data.created} prospect(s) créé(s) dans Odoo (étiquette "scan", activité Appeler programmée).`;
+      let msg = data.historized
+        ? `✅ ${data.created} appel(s) enregistré(s) dans Odoo, sur la fiche "${data.ficheLabel || ''}" (étiquette "scan").`
+        : `✅ ${data.created} prospect(s) créé(s) dans Odoo (étiquette "scan", activité Appeler programmée).`;
       if (data.skipped > 0) {
         msg += `<br>⏭️ ${data.skipped} ligne(s) ignorée(s) (déjà enregistrées) : ${data.skippedRows.join(', ')}`;
       }
