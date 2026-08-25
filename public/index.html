@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha Motors — OCR vers Odoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="kente-band"></div>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Alpha Motors · Call Center</div>
+    <h1>Scanner une fiche, l'envoyer vers <em>Excel</em></h1>
+    <p class="lede">Choisissez le type de document, prenez-le en photo ou déposez le scan, vérifiez les lignes détectées, puis enregistrez.</p>
+  </header>
+
+  <div class="stepper">
+    <div class="step-pill active" id="pill-1">1 · Type de document</div>
+    <div class="step-pill" id="pill-2">2 · Charger le fichier</div>
+    <div class="step-pill" id="pill-3">3 · Vérifier &amp; enregistrer</div>
+  </div>
+
+  <!-- ============ ÉTAPE 1 : TYPE DE DOCUMENT ============ -->
+  <div class="card" id="step-type">
+    <h2>Quel document scannez-vous ?</h2>
+    <p class="sub">Le modèle et les champs Odoo utilisés dépendent de ce choix.</p>
+    <div class="type-grid" id="typeGrid">
+      <!-- généré dynamiquement depuis /api/ocr/types -->
+    </div>
+  </div>
+
+  <!-- ============ ÉTAPE 2 : UPLOAD ============ -->
+  <div class="card hidden" id="step-upload">
+    <h2>Charger le document</h2>
+    <p class="sub" id="uploadSubtitle"></p>
+
+    <div id="dropzone" class="dropzone">
+      <p>📂 Glissez-déposez le fichier ici</p>
+      <p class="hint">JPG, PNG ou PDF — 10 Mo max</p>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="primary" id="btnChooseFile">Choisir un fichier</button>
+        <button id="btnTakePhoto">📷 Prendre une photo</button>
+      </div>
+      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" hidden>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+    </div>
+
+    <div class="thumb hidden" id="previewArea">
+      <strong id="fileName"></strong>
+      <div id="thumbnailContainer"></div>
+    </div>
+
+    <div id="uploadError" class="alert alert-error hidden"></div>
+
+    <div class="btn-row">
+      <button id="btnBackToType">← Changer de type</button>
+      <button class="primary hidden" id="btnAnalyze">🔍 Analyser le document</button>
+    </div>
+
+    <div id="loadingSpinner" class="hidden" style="margin-top:16px;">
+      <span class="spinner"></span> Analyse OCR en cours (Mistral)...
+    </div>
+  </div>
+
+  <!-- ============ ÉTAPE 3 : REVUE / ENREGISTREMENT ============ -->
+  <div class="card hidden" id="step-review">
+    <h2>Vérifier avant d'enregistrer</h2>
+    <p class="sub">Corrigez les cellules si besoin — les champs modifiés sont surlignés.</p>
+
+    <div class="meta-row">
+      <div class="meta-field">
+        <label>Date de la fiche</label>
+        <input type="date" id="fiche_date">
+      </div>
+      <div class="meta-field">
+        <label>Agent</label>
+        <input type="text" id="fiche_agent" placeholder="Aristide, Gloria…">
+      </div>
+    </div>
+
+    <div id="ocrWarning" class="alert alert-warning hidden"></div>
+
+    <div class="review-grid">
+      <div>
+        <div class="sub" style="margin-bottom:8px;">Document original</div>
+        <div id="documentPreview" class="doc-preview"></div>
+      </div>
+      <div>
+        <div class="sub" style="margin-bottom:8px;">Lignes détectées</div>
+        <div style="overflow-x:auto;">
+          <table id="reviewTable">
+            <thead id="reviewTableHead"></thead>
+            <tbody id="reviewTableBody"></tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button id="btnAddRow">+ Ajouter une ligne</button>
+          <button id="btnResetAll">Réinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="justify-content:flex-end;">
+      <button id="btnNewScan">↺ Nouveau scan</button>
+      <button class="primary" id="btnSave">💾 Enregistrer dans Odoo</button>
+    </div>
+
+    <div id="saveResult" class="alert hidden"></div>
+  </div>
+
+  <footer>
+    <span>Alpha Motors — Palais de sports</span>
+    <span>OCR : Mistral · Stockage : Excel</span>
+  </footer>
+</div>
+
+<script src="assets/js/upload.js"></script>
+<script src="assets/js/table.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
