@@ -25,9 +25,3 @@ services:
       - ODOO_STATUS_FIELD_RDV=${ODOO_STATUS_FIELD_RDV}
       - ODOO_STATUS_FIELD_APPEL=${ODOO_STATUS_FIELD_APPEL}
       - PORT=3000
-    networks:
-      - odoo_odoo_network
-
-networks:
-  odoo_odoo_network:
-    external: true
